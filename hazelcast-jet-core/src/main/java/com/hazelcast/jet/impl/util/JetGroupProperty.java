@@ -32,6 +32,18 @@ public final class JetGroupProperty {
     public static final HazelcastProperty JOB_RESULTS_TTL_SECONDS
             = new HazelcastProperty("jet.job.results.ttl.seconds", DAYS.toSeconds(7), SECONDS);
 
+    /**
+     * Some versions on Windows use very coarse grained timers. It results in overly aggressive backoff
+     * in Jet tasklet thread executor and poor throughput.
+     *
+     * This property has no effect when not running on Windows.
+     * Possible values: auto/on/off
+     * Default value: auto
+     *
+     */
+    public static final HazelcastProperty WINDOWS_HIGHRES_TIMER_HACK
+            = new HazelcastProperty("jet.windows.highres.timer", "auto");
+
     private JetGroupProperty() {
     }
 

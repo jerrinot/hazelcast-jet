@@ -21,6 +21,7 @@ import com.hazelcast.jet.JetException;
 import com.hazelcast.jet.impl.exception.ShutdownInProgressException;
 import com.hazelcast.jet.impl.util.NonCompletableFuture;
 import com.hazelcast.jet.impl.util.ProgressState;
+import com.hazelcast.jet.impl.util.WindowsTimerHack;
 import com.hazelcast.logging.ILogger;
 import com.hazelcast.spi.impl.NodeEngineImpl;
 import com.hazelcast.util.concurrent.BackoffIdleStrategy;
@@ -81,12 +82,14 @@ public class TaskletExecutionService {
     // - TRUE: shut down gracefully: run normally, don't accept more tasklets
     private final AtomicReference<Boolean> gracefulShutdown = new AtomicReference<>(null);
     private final Object lock = new Object();
+    private final WindowsTimerHack windowsTimerHack;
 
     public TaskletExecutionService(NodeEngineImpl nodeEngine, int threadCount) {
         this.hzInstanceName = nodeEngine.getHazelcastInstance().getName();
         this.cooperativeWorkers = new CooperativeWorker[threadCount];
         this.cooperativeThreadPool = new Thread[threadCount];
         this.logger = nodeEngine.getLoggingService().getLogger(TaskletExecutionService.class);
+        this.windowsTimerHack = new WindowsTimerHack(hzInstanceName, nodeEngine.getProperties());
 
         nodeEngine.getMetricsRegistry().newProbeBuilder()
                        .withTag("module", "jet")
@@ -137,6 +140,7 @@ public class TaskletExecutionService {
     }
 
     public void shutdown(boolean graceful) {
+        windowsTimerHack.shutdown();
         if (gracefulShutdown.compareAndSet(null, graceful)) {
             if (graceful) {
                 blockingTaskletExecutor.shutdown();
