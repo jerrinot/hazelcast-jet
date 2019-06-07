@@ -33,6 +33,7 @@ import com.hazelcast.jet.function.SupplierEx;
 import com.hazelcast.jet.impl.JobExecutionRecord;
 import com.hazelcast.jet.impl.JobRepository;
 import com.hazelcast.jet.impl.execution.init.JetInitDataSerializerHook;
+import com.hazelcast.jet.pipeline.EarlyResultPolicy;
 import com.hazelcast.test.HazelcastSerialClassRunner;
 import org.junit.Before;
 import org.junit.Rule;
@@ -182,6 +183,7 @@ public class JobRestartWithSnapshotTest extends JetTestSupport {
                     TimestampKind.EVENT,
                     wDef,
                     0L,
+                    EarlyResultPolicy.ALL,
                     aggrOp,
                     KeyedWindowResult::new));
 

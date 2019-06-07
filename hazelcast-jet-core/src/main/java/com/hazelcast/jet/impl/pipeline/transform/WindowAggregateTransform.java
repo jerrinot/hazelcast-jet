@@ -131,6 +131,7 @@ public class WindowAggregateTransform<A, R> extends AbstractTransform {
                         TimestampKind.EVENT,
                         slidingWinPolicy(wDef.windowSize(), wDef.slideBy()),
                         wDef.earlyResultsPeriod(),
+                        wDef.earlyResultPolicy(),
                         aggrOp,
                         jetEventOfWindowResultFn()
                 ));

@@ -22,6 +22,7 @@ import com.hazelcast.jet.core.processor.Processors;
 import com.hazelcast.jet.core.test.TestSupport;
 import com.hazelcast.jet.function.Functions;
 import com.hazelcast.jet.function.SupplierEx;
+import com.hazelcast.jet.pipeline.EarlyResultPolicy;
 import com.hazelcast.test.HazelcastParallelClassRunner;
 import com.hazelcast.test.annotation.ParallelTest;
 import org.junit.Test;
@@ -52,6 +53,7 @@ public class SlidingWindowP_CoGroupTest {
                 TimestampKind.FRAME,
                 tumblingWinPolicy(1),
                 0L,
+                EarlyResultPolicy.ALL,
                 aggregateOperation2(
                         AggregateOperations.<Entry<String, String>>toList(),
                         AggregateOperations.<Entry<String, String>>toList()),

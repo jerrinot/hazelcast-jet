@@ -27,6 +27,7 @@ import static com.hazelcast.util.Preconditions.checkTrue;
 public class SlidingWindowDefinition extends WindowDefinition {
     private final long windowSize;
     private final long slideBy;
+    private EarlyResultPolicy earlyResultPolicy = EarlyResultPolicy.OLDEST_ONLY;
 
     SlidingWindowDefinition(long windowSize, long slideBy) {
         checkPositive(windowSize, "windowSize must be positive");
@@ -35,6 +36,15 @@ public class SlidingWindowDefinition extends WindowDefinition {
                 + windowSize + ", " + slideBy + ") != 0");
         this.windowSize = windowSize;
         this.slideBy = slideBy;
+    }
+
+    public EarlyResultPolicy earlyResultPolicy() {
+        return earlyResultPolicy;
+    }
+
+    public SlidingWindowDefinition setEarlyResultPolicy(EarlyResultPolicy earlyResultPolicy) {
+        this.earlyResultPolicy = earlyResultPolicy;
+        return this;
     }
 
     @Override

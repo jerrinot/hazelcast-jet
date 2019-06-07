@@ -30,6 +30,7 @@ import com.hazelcast.jet.core.Watermark;
 import com.hazelcast.jet.core.processor.Processors;
 import com.hazelcast.jet.core.function.KeyedWindowResultFunction;
 import com.hazelcast.jet.impl.execution.init.JetInitDataSerializerHook;
+import com.hazelcast.jet.pipeline.EarlyResultPolicy;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
@@ -118,6 +119,7 @@ public class SlidingWindowP<K, A, R, OUT> extends AbstractProcessor {
 
     // Fields for early results emission
     private final long earlyResultsPeriod;
+    private final EarlyResultPolicy earlyResultPolicy;
     private long lastTimeEarlyResultsEmitted;
     private Traverser<? extends OUT> earlyWinTraverser;
 
@@ -139,6 +141,7 @@ public class SlidingWindowP<K, A, R, OUT> extends AbstractProcessor {
             @Nonnull List<? extends ToLongFunction<?>> frameTimestampFns,
             @Nonnull SlidingWindowPolicy winPolicy,
             long earlyResultsPeriod,
+            @Nonnull EarlyResultPolicy earlyResultPolicy,
             @Nonnull AggregateOperation<A, ? extends R> aggrOp,
             @Nonnull KeyedWindowResultFunction<? super K, ? super R, ? extends OUT> mapToOutputFn,
             boolean isLastStage
@@ -153,6 +156,7 @@ public class SlidingWindowP<K, A, R, OUT> extends AbstractProcessor {
         this.frameTimestampFns = (List<ToLongFunction<Object>>) frameTimestampFns;
         this.keyFns = (List<Function<Object, ? extends K>>) keyFns;
         this.earlyResultsPeriod = earlyResultsPeriod;
+        this.earlyResultPolicy = earlyResultPolicy;
         this.aggrOp = aggrOp;
         this.combineFn = aggrOp.combineFn();
         this.mapToOutputFn = mapToOutputFn;
@@ -204,6 +208,19 @@ public class SlidingWindowP<K, A, R, OUT> extends AbstractProcessor {
                 topTs + winPolicy.windowSize() - winPolicy.frameSize(),
                 winPolicy.frameSize())
             .boxed();
+        switch (earlyResultPolicy) {
+            case ALL:
+                break;
+            case OLDEST_ONLY:
+                earlyWinRange = earlyWinRange.limit(1);
+                break;
+            case NEWEST_ONLY:
+                Long lastItem = earlyWinRange.reduce((a, b) -> b).orElseThrow(AssertionError::new);
+                earlyWinRange = Stream.of(lastItem);
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported Early Result Policy: " + earlyResultPolicy);
+        }
         earlyWinTraverser = traverseStream(earlyWinRange)
                 .flatMap(winEnd -> traverseIterable(computeWindow(winEnd).entrySet())
                         .map(e -> mapToOutputFn.apply(

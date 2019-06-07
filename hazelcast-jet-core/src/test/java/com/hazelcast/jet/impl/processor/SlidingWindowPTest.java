@@ -27,6 +27,7 @@ import com.hazelcast.jet.datamodel.KeyedWindowResult;
 import com.hazelcast.jet.function.FunctionEx;
 import com.hazelcast.jet.function.SupplierEx;
 import com.hazelcast.jet.function.ToLongFunctionEx;
+import com.hazelcast.jet.pipeline.EarlyResultPolicy;
 import com.hazelcast.test.HazelcastParametersRunnerFactory;
 import com.hazelcast.test.annotation.ParallelTest;
 import org.junit.After;
@@ -108,6 +109,7 @@ public class SlidingWindowPTest {
                         TimestampKind.EVENT,
                         winPolicy,
                         0L,
+                        EarlyResultPolicy.ALL,
                         operation,
                 KeyedWindowResult::new)
                 : combineToSlidingWindowP(winPolicy, operation, KeyedWindowResult::new);

@@ -20,6 +20,7 @@ import com.hazelcast.jet.core.SlidingWindowPolicy;
 import com.hazelcast.jet.core.test.TestInbox;
 import com.hazelcast.jet.core.test.TestOutbox;
 import com.hazelcast.jet.core.test.TestProcessorContext;
+import com.hazelcast.jet.pipeline.EarlyResultPolicy;
 import com.hazelcast.test.HazelcastSerialClassRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -136,6 +137,7 @@ public class SlidingWindowP_changeWindowSizeTest {
                 singletonList((Integer t) -> winPolicy.higherFrameTs(t)),
                 winPolicy,
                 0L,
+                EarlyResultPolicy.ALL,
                 summingLong((Integer t) -> t),
                 (start, end, key, result, isEarly) -> result(end, key, result),
                 true);

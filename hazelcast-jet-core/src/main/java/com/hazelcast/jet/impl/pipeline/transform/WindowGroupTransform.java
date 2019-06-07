@@ -112,6 +112,7 @@ public class WindowGroupTransform<K, R> extends AbstractTransform {
                         TimestampKind.EVENT,
                         slidingWinPolicy(wDef.windowSize(), wDef.slideBy()),
                         wDef.earlyResultsPeriod(),
+                        wDef.earlyResultPolicy(),
                         aggrOp,
                         jetEventOfKeyedWindowResultFn()
                 ));

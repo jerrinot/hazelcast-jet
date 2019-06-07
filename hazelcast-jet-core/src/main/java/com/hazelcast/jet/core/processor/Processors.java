@@ -50,6 +50,7 @@ import com.hazelcast.jet.impl.processor.SlidingWindowP;
 import com.hazelcast.jet.impl.processor.TransformP;
 import com.hazelcast.jet.impl.processor.TransformUsingContextP;
 import com.hazelcast.jet.pipeline.ContextFactory;
+import com.hazelcast.jet.pipeline.EarlyResultPolicy;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -429,11 +430,13 @@ public final class Processors {
             @Nonnull TimestampKind timestampKind,
             @Nonnull SlidingWindowPolicy winPolicy,
             long earlyResultsPeriod,
+            @Nonnull EarlyResultPolicy earlyResultPolicy,
             @Nonnull AggregateOperation<A, ? extends R> aggrOp,
             @Nonnull KeyedWindowResultFunction<? super K, ? super R, ? extends OUT> mapToOutputFn
     ) {
         return aggregateByKeyAndWindowP(
-                keyFns, timestampFns, timestampKind, winPolicy, earlyResultsPeriod, aggrOp, mapToOutputFn, true);
+                keyFns, timestampFns, timestampKind, winPolicy, earlyResultsPeriod, earlyResultPolicy, aggrOp,
+                mapToOutputFn, true);
     }
 
     /**
@@ -482,6 +485,7 @@ public final class Processors {
                 timestampKind,
                 winPolicy.toTumblingByFrame(),
                 0L,
+                EarlyResultPolicy.ALL,
                 aggrOp.withIdentityFinish(),
                 KeyedWindowResult::new,
                 false
@@ -536,6 +540,7 @@ public final class Processors {
                 TimestampKind.FRAME,
                 winPolicy,
                 0L,
+                EarlyResultPolicy.ALL,
                 aggrOp.withCombiningAccumulateFn(KeyedWindowResult<Object, A>::result),
                 mapToOutputFn,
                 true
@@ -569,6 +574,7 @@ public final class Processors {
             @Nonnull TimestampKind timestampKind,
             @Nonnull SlidingWindowPolicy winPolicy,
             long earlyResultsPeriod,
+            @Nonnull EarlyResultPolicy earlyResultPolicy,
             @Nonnull AggregateOperation<A, ? extends R> aggrOp,
             @Nonnull KeyedWindowResultFunction<? super K, ? super R, ? extends OUT> mapToOutputFn,
             boolean isLastStage
@@ -580,6 +586,7 @@ public final class Processors {
                             .collect(toList()),
                 winPolicy,
                 earlyResultsPeriod,
+                earlyResultPolicy,
                 aggrOp,
                 mapToOutputFn,
                 isLastStage);

@@ -64,7 +64,7 @@ public abstract class TestInClusterSupport extends JetTestSupport {
 
     @Parameters(name = "{index}: mode={0}")
     public static Iterable<?> parameters() {
-        return Arrays.asList(MEMBER_TEST_MODE, CLIENT_TEST_MODE);
+        return Arrays.asList(/*MEMBER_TEST_MODE, */CLIENT_TEST_MODE);
     }
 
     @BeforeClass

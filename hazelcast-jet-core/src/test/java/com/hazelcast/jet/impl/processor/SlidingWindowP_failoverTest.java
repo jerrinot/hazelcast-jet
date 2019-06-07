@@ -28,6 +28,7 @@ import com.hazelcast.jet.core.test.TestProcessorContext;
 import com.hazelcast.jet.datamodel.KeyedWindowResult;
 import com.hazelcast.jet.function.ToLongFunctionEx;
 import com.hazelcast.jet.impl.processor.SlidingWindowP.Keys;
+import com.hazelcast.jet.pipeline.EarlyResultPolicy;
 import com.hazelcast.test.HazelcastParallelClassRunner;
 import com.hazelcast.test.annotation.ParallelTest;
 import org.junit.Rule;
@@ -62,6 +63,7 @@ public class SlidingWindowP_failoverTest {
                 singletonList((ToLongFunctionEx<Entry<?, Long>>) Entry::getValue),
                 wDef,
                 0L,
+                EarlyResultPolicy.ALL,
                 aggrOp,
                 KeyedWindowResult::new,
                 true);

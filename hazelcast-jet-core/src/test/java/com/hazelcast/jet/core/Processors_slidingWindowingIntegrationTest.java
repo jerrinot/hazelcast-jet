@@ -27,6 +27,7 @@ import com.hazelcast.jet.core.processor.SinkProcessors;
 import com.hazelcast.jet.datamodel.KeyedWindowResult;
 import com.hazelcast.jet.function.FunctionEx;
 import com.hazelcast.jet.function.ToLongFunctionEx;
+import com.hazelcast.jet.pipeline.EarlyResultPolicy;
 import com.hazelcast.test.HazelcastParametersRunnerFactory;
 import com.hazelcast.test.annotation.ParallelTest;
 import org.junit.Test;
@@ -107,6 +108,7 @@ public class Processors_slidingWindowingIntegrationTest extends JetTestSupport {
                             TimestampKind.EVENT,
                             wDef,
                             0L,
+                            EarlyResultPolicy.ALL,
                             counting,
                             KeyedWindowResult::new));
             dag
