@@ -16,6 +16,8 @@
 
 package com.hazelcast.jet;
 
+import com.hazelcast.jet.impl.observer.IterableObserver;
+
 import javax.annotation.Nonnull;
 import java.util.function.Consumer;
 
@@ -86,6 +88,21 @@ public interface Observable<T> {
     void addObserver(@Nonnull Consumer<? super T> onNext,
                      @Nonnull Consumer<? super Throwable> onError,
                      @Nonnull Runnable onComplete);
+
+    /**
+     * Non-thread safe iterable. The iterable returns an iterator
+     * which can block when no additional data has available, but
+     * the sequence is not completed yet.
+     *
+     * TODO: Proper contract specification
+     *
+     * @return
+     */
+    default Iterable<T> toBlockingIterable() {
+        IterableObserver<T> observer = new IterableObserver<>();
+        addObserver(observer);
+        return observer;
+    }
 
     /**
      * Attempts to terminate all remote objects backing this particular
