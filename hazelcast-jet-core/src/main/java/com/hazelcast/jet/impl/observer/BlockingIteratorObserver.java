@@ -10,15 +10,24 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import static com.hazelcast.jet.impl.util.ExceptionUtil.rethrow;
 
-public final class ObserverIterator<T> implements Iterator<T>, Observer<T> {
+/**
+ * TODO: Proper contract
+ *
+ * Implementation notes/assumptions:
+ * 1. onComplete() called after all onNext()/onError() completed
+ * 2. Iterator is single-threaded
+ * 3. both next() and hasNext() block when no item is available, but onComplete() has not been called
+ *
+ * @param <T>
+ */
+public final class BlockingIteratorObserver<T> implements Iterator<T>, Observer<T> {
     private static final Object COMPLETED = new Object();
 
     private final BlockingQueue<Object> itemQueue;
-    private boolean fullyDrained;
     private Object next;
     private volatile Throwable error;
 
-    public ObserverIterator() {
+    public BlockingIteratorObserver() {
         this.itemQueue = new LinkedBlockingQueue<>();
     }
 
@@ -41,23 +50,19 @@ public final class ObserverIterator<T> implements Iterator<T>, Observer<T> {
 
     @Override
     public boolean hasNext() {
-        if (fullyDrained) {
-            return false;
-        }
         if (next == null) {
-            advance();
+            advanceBlocking();
         }
         if (next != COMPLETED) {
             return true;
         }
-        fullyDrained = true;
         if (error != null) {
             throw rethrow(error);
         }
         return false;
     }
 
-    private void advance() {
+    private void advanceBlocking() {
         try {
             next = itemQueue.take();
         } catch (InterruptedException e) {
