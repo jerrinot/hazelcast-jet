@@ -16,9 +16,10 @@
 
 package com.hazelcast.jet;
 
-import com.hazelcast.jet.impl.observer.IterableObserver;
+import com.hazelcast.jet.impl.observer.ObserverIterator;
 
 import javax.annotation.Nonnull;
+import java.util.Iterator;
 import java.util.function.Consumer;
 
 /**
@@ -98,8 +99,8 @@ public interface Observable<T> {
      *
      * @return
      */
-    default Iterable<T> toBlockingIterable() {
-        IterableObserver<T> observer = new IterableObserver<>();
+    default Iterator<T> toBlockingIterator() {
+        ObserverIterator<T> observer = new ObserverIterator<>();
         addObserver(observer);
         return observer;
     }
