@@ -33,17 +33,20 @@ public final class BlockingIteratorObserver<T> implements Iterator<T>, Observer<
 
     @Override
     public void onNext(@Nonnull T t) {
+        assert next != COMPLETED;
         itemQueue.add(t);
     }
 
     @Override
     public void onError(@Nonnull Throwable throwable) {
+        assert next != COMPLETED;
         error = throwable;
         itemQueue.add(COMPLETED);
     }
 
     @Override
     public void onComplete() {
+        assert next != COMPLETED;
         itemQueue.add(COMPLETED);
     }
 
